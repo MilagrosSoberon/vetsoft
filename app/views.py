@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from .models import Client, Medicine, Pet, Product, Provider, Vet
+from django.urls import reverse
 
 
 def home(request):
@@ -303,19 +304,21 @@ def vets_form(request, id=None):
         else:
             vet = get_object_or_404(Vet, pk=vet_id)
             vet.update_vet(request.POST)
+        
         if saved:
             return redirect(reverse("vets_repo"))
         
-
         return render(
-            request, "vets/form.html", {"errors": errors, "vet": request.POST}
+            request, "vets/form.html", {"errors": errors, "vet": request.POST, "specialties": Vet.Specialties.choices}
         )
 
     vet = None
     if id is not None:
         vet = get_object_or_404(Vet, pk=id)
+    else:
+        vet = {"specialty": ""}  # Default to empty specialty for new vets
 
-    return render(request, "vets/form.html", {"vet": vet})
+    return render(request, "vets/form.html", {"vet": vet, "specialties": Vet.Specialties.choices})
 
 def vets_delete(request):
     vet_id = request.POST.get("vet_id")

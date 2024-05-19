@@ -1,6 +1,5 @@
 from django.db import models
 from django.core.exceptions import ValidationError
-
 import re
 
 def validate_client(data):
@@ -277,6 +276,8 @@ def validate_vet(data):
     name = data.get("name", "")
     email = data.get("email", "")
     phone = data.get("phone", "")
+    specialty = data.get("specialty", "")
+
     pattern_phone = r'^\+?[\d\s\-\(\)]+$'
 
     if name == "":
@@ -286,17 +287,37 @@ def validate_vet(data):
         errors["email"] = "Por favor ingrese un email"
     elif email.count("@") == 0:
         errors["email"] = "Por favor ingrese un email valido"
+
     if phone == "":
         errors["phone"] = "Por favor ingrese un teléfono"
     elif not re.match(pattern_phone, phone):
-        raise ValidationError("El formato del teléfono es inválido.")
+        errors["phone"] = "El formato del teléfono es inválido."
+
+    if specialty == "":
+        errors["specialty"] = "Por favor seleccione una especialidad"
 
     return errors
 
 class Vet(models.Model):
+    class Specialties(models.TextChoices):
+        MEDICINA_INTERNA = 'Medicina interna', 'Medicina interna'
+        CIRUGIA = 'Cirugía', 'Cirugía'
+        DERMATOLOGIA = 'Dermatología', 'Dermatología'
+        OFTALMOLOGIA = 'Oftalmología', 'Oftalmología'
+        ODONTOLOGIA = 'Odontología', 'Odontología'
+        ONCOLOGIA = 'Oncología', 'Oncología'
+        ORTOPEDIA = 'Ortopedia', 'Ortopedia'
+        CARDIOLOGIA = 'Cardiología', 'Cardiología'
+        NEUROLOGIA = 'Neurología', 'Neurología'
+        REPRODUCCION = 'Reproducción', 'Reproducción'
+
     name = models.CharField(max_length=100)
     email = models.EmailField(max_length=254)
-    phone = models.IntegerField()
+    phone = models.CharField(max_length=20)
+    specialty = models.CharField(
+        max_length=16,
+        choices=Specialties.choices,
+    )
 
     def __str__(self):
         return self.name
@@ -305,13 +326,14 @@ class Vet(models.Model):
     def save_vet(cls, vet_data):
         errors = validate_vet(vet_data)
 
-        if len(errors.keys()) > 0:
+        if errors:
             return False, errors
 
-        Vet.objects.create(
+        cls.objects.create(
             name=vet_data.get("name"),
             email=vet_data.get("email"),
             phone=vet_data.get("phone"),
+            specialty=vet_data.get("specialty", cls.Specialties.MEDICINA_INTERNA)
         )
 
         return True, None
@@ -320,5 +342,5 @@ class Vet(models.Model):
         self.name = vet_data.get("name", "") or self.name
         self.email = vet_data.get("email", "") or self.email
         self.phone = vet_data.get("phone", "") or self.phone
-
+        self.specialty = vet_data.get("specialty", self.specialty)
         self.save()

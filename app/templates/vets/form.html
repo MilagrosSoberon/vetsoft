@@ -66,6 +66,21 @@
                     {% endif %}
                 </div>
 
+                <div>
+                    <label for="specialty" class="form-label">Especialidad</label>
+                    <select id="specialty" name="specialty" class="form-select" required>
+                        <option value="" disabled {% if not vet.specialty %}selected{% endif %}>Seleccione una especialidad</option>
+                        {% for key, value in specialties %}
+                            <option value="{{ key }}" {% if vet.specialty == key %}selected{% endif %}>{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if errors.specialty %}
+                        <div class="invalid-feedback">
+                            {{ errors.specialty }}
+                        </div>
+                    {% endif %}
+                </div>
+                            
                 
                 <button class="btn btn-primary">Guardar</button>
             </form>

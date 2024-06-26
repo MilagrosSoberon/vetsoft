@@ -104,7 +104,39 @@ class ClientModelTest(TestCase):
         errors = validate_client(client_data)
         self.assertNotIn("name", errors)
 
+    def test_validate_email_with_invalid_format(self):
+        client_data = {
+            "name": "Juan Sebastian Veron",
+            "phone": "54221555232",
+            "address": "13 y 44",
+            "email": "brujita75gmail.com",
+        }
+        errors = validate_client(client_data)
+        self.assertIn("email", errors)
+        self.assertEqual(errors["email"], "Por favor ingrese un email válido")
+
+    def test_validate_email_without_vetsoft_domain(self):
+        client_data = {
+            "name": "Juan Sebastian Veron",
+            "phone": "54221555232",
+            "address": "13 y 44",
+            "email": "brujita75@gmail.com",
+        }
+        errors = validate_client(client_data)
+        self.assertIn("email", errors)
+        self.assertEqual(errors["email"], "El email debe terminar con @vetsoft.com")
+
     
+    def test_validate_email_with_valid_vetsoft_domain(self):
+        client_data = {
+            "name": "Juan Sebastian Veron",
+            "phone": "54221555232",
+            "address": "13 y 44",
+            "email": "brujita75@vetsoft.com",
+        }
+        errors = validate_client(client_data)
+        self.assertNotIn("email", errors)
+
 
 class ProviderModelTest(TestCase):
     

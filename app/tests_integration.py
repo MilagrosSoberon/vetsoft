@@ -1,12 +1,13 @@
-from django.test import TestCase
 from django.shortcuts import reverse
-from app.models import Client, Provider, Pet
+from django.test import TestCase
+
+from app.models import Client, Pet, Provider
+
 
 class HomePageTest(TestCase):
     def test_use_home_template(self):
         response = self.client.get(reverse("home"))
         self.assertTemplateUsed(response, "home.html")
-
 
 class ClientsTest(TestCase):
     def test_repo_use_repo_template(self):
@@ -26,18 +27,18 @@ class ClientsTest(TestCase):
             reverse("clients_form"),
             data={
                 "name": "Juan Sebastian Veron",
-                "phone": "221555232",
+                "phone": "54221555232",
                 "address": "13 y 44",
-                "email": "brujita75@hotmail.com",
+                "email": "brujita75@vetsoft.com",
             },
         )
         clients = Client.objects.all()
         self.assertEqual(len(clients), 1)
 
         self.assertEqual(clients[0].name, "Juan Sebastian Veron")
-        self.assertEqual(clients[0].phone, "221555232")
+        self.assertEqual(clients[0].phone, "54221555232")
         self.assertEqual(clients[0].address, "13 y 44")
-        self.assertEqual(clients[0].email, "brujita75@hotmail.com")
+        self.assertEqual(clients[0].email, "brujita75@vetsoft.com")
 
         self.assertRedirects(response, reverse("clients_repo"))
 
@@ -60,20 +61,33 @@ class ClientsTest(TestCase):
             reverse("clients_form"),
             data={
                 "name": "Juan Sebastian Veron",
-                "phone": "221555232",
+                "phone": "54221555232",
                 "address": "13 y 44",
                 "email": "brujita75",
             },
         )
 
-        self.assertContains(response, "Por favor ingrese un email valido")
+        self.assertContains(response, "Por favor ingrese un email válido")
+
+    def test_validate_email_ends_with_vetsoft_com(self):
+        response = self.client.post(
+            reverse("clients_form"),
+            data={
+                "name": "Rosario Central",
+                "phone": "544444444",
+                "address": "13 y 44",
+                "email": "rositac@gmail.com",
+            },
+        )
+
+        self.assertContains(response, "El email debe terminar con @vetsoft.com")    
 
     def test_edit_user_with_valid_data(self):
         client = Client.objects.create(
             name="Juan Sebastián Veron",
             address="13 y 44",
-            phone="221555232",
-            email="brujita75@hotmail.com",
+            phone="54221555232",
+            email="brujita75@vetsoft.com",
         )
 
         response = self.client.post(
@@ -92,7 +106,42 @@ class ClientsTest(TestCase):
         self.assertEqual(editedClient.phone, client.phone)
         self.assertEqual(editedClient.address, client.address)
         self.assertEqual(editedClient.email, client.email)
-
+        
+    def test_validation_valid_phone(self):
+        response = self.client.post(
+            reverse("clients_form"),
+            data={
+                "name": "Juan Perez",
+                "phone": "",  # teléfono inválido
+                "email": "hola@vetsoft.com",
+                "address": "Calle 123",
+            },
+        )
+        self.assertContains(response, "Por favor ingrese un teléfono")
+    
+    def test_validation_invalid_phone_number(self):
+        response = self.client.post(
+            reverse("clients_form"),
+            data={
+                "name": "Juan Sebastian Veron",
+                "phone": "111111111",
+                "email": "brujita75@vetsoft.com",
+                "address": "13 y 44",     
+            },
+        )
+        self.assertContains(response, "El número de teléfono debe comenzar con el prefijo 54 para Argentina.")
+    
+    def test_validation_invalid_name(self):
+        response = self.client.post(
+            reverse("clients_form"),
+            data={
+                "name": "Juan123",
+                "phone": "54221555232",
+                "email": "brujita75@vetsoft.com",
+                "address": "13 y 44",
+            },
+        )
+        self.assertContains(response, "El nombre solo puede contener letras y espacios")
 
 
 class ProvidersTest(TestCase):
@@ -180,7 +229,11 @@ class ProvidersTest(TestCase):
 
 # TEST DE PET
 class PetsTest(TestCase):
-    
+    # verifica que se una la template correcta
+    def test_form_use_form_template(self):
+        response = self.client.get(reverse("pets_form"))
+        self.assertTemplateUsed(response, "pets/form.html")
+        
     # creacion de mascota
     def test_can_create_pet(self):
             response = self.client.post(
@@ -189,7 +242,7 @@ class PetsTest(TestCase):
                     "name": "Roma",
                     "breed": "Labrador",
                     "birthday": "2021-10-10",
-                    "weight": 10
+                    "weight": 10,
                 },
             )
             pets = Pet.objects.all()
@@ -216,7 +269,7 @@ class PetsTest(TestCase):
                     "name": "Roma",
                     "breed": "Labrador",
                     "birthday": "2021-10-10",
-                    "weight": -10
+                    "weight": -10,
                 },
             )
         # Verifico si el peso es negativo y muestra un mensaje de error
@@ -230,12 +283,25 @@ class PetsTest(TestCase):
             "name": "Pepe",
             "breed": "Labrador",
             "birthday": "2026-01-01",
-            "weight": 10
-        }
+            "weight": 10,
+        },
         )
 
         self.assertContains(response, "La fecha de nacimiento no puede ser mayor o igual a la fecha actual")
-
+        
+     # validar de que la raza no puede ser null
+    def test_validation_errors_pet_breedless(self):
+        response = self.client.post(
+                reverse("pets_form"),
+                data={
+                    "name": "Posta",
+                    "breed": "",
+                    "birthday": "2021-10-10",
+                    "weight": 180.05
+                },
+            )
+        # Verifico si no tiene raza y muestra un mensaje de error
+        self.assertContains(response, "Por favor seleccione una raza")
 
 class ProductsTest(TestCase):
     def test_validation_invalid_price(self):
@@ -264,4 +330,28 @@ class MedicinesTest(TestCase):
         )
 
         self.assertContains(response, "La dosis debe estar en un rango de 1 a 10")
+
+class VetsTest(TestCase):
+    def test_validation_invalid_phone(self):
+        response = self.client.post(
+            reverse("vets_form"),
+            data={
+                "name": "Juan Perez",
+                "phone": "",  # teléfono inválido
+                "email": "hola@vetsoft.com",
+            },
+        )
+
+        self.assertContains(response, "Por favor ingrese un teléfono")
+
+    def test_validation_invalid_phone_number(self):
+        response = self.client.post(
+            reverse("vets_form"),
+            data={
+                "name": "Juan Sebastian Veron",
+                "phone": "111111111",
+                "email": "brujita75@vetsoft.com",  
+            },
+        )
+        self.assertContains(response, "El número de teléfono debe comenzar con el prefijo 54 para Argentina.")
 

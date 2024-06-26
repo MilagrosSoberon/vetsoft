@@ -1,5 +1,6 @@
-from django.shortcuts import render, redirect, reverse, get_object_or_404
-from .models import Client, Medicine, Pet, Product, Provider, Vet
+from django.shortcuts import get_object_or_404, redirect, render, reverse
+
+from app.models import Breed, Client, Medicine, Pet, Product, Provider, Vet
 
 
 def home(request):
@@ -27,7 +28,7 @@ def clients_form(request, id=None):
             return redirect(reverse("clients_repo"))
 
         return render(
-            request, "clients/form.html", {"errors": errors, "client": request.POST}
+            request, "clients/form.html", {"errors": errors, "client": request.POST},
         )
 
     client = None
@@ -65,7 +66,7 @@ def medicines_form(request, id=None):
             return redirect(reverse("medicines_repo"))
 
         return render(
-            request, "medicines/form.html", {"errors": errors, "medicine": request.POST}
+            request, "medicines/form.html", {"errors": errors, "medicine": request.POST},
         )
 
     medicine = None
@@ -128,7 +129,7 @@ def pets_history(request, id):
 
 
         return render(
-            request, "pets/form.html", {"errors": errors, "pet": request.POST, "clients": clients}
+            request, "pets/form.html", {"errors": errors, "pet": request.POST, "clients": clients},
         )
 
     pet = None
@@ -136,6 +137,48 @@ def pets_history(request, id):
         pet = get_object_or_404(Pet, pk=id)
 
     return render(request, "pets/form.html", {"pet": pet, "clients": clients})
+
+
+# def pets_form(request, id=None):
+#     clients = Client.objects.all()
+#     if request.method == "POST":
+#         pet_id = request.POST.get("id", "")
+#         errors = {}
+#         saved = True
+
+#         if pet_id == "":
+#             saved, errors = Pet.save_pet(request.POST)
+#             # Si el objeto Pet se ha creado correctamente
+#             if saved:
+#                 # Obtener el ID del cliente seleccionado del formulario
+#                 client_id = request.POST.get("client", "")
+#                 # Asociar el cliente seleccionado con el animal creado
+#                 if client_id:
+#                     pet = Pet.objects.latest('id')  # Obtener el último animal creado
+#                     pet.client_id = client_id
+#                     pet.save()
+#         else:
+#             pet = get_object_or_404(Pet, pk=pet_id)
+#             pet.update_pet(request.POST)
+#             # Obtener el ID del cliente seleccionado del formulario
+#             client_id = request.POST.get("client", "")
+#             # Asociar el cliente seleccionado con el animal actualizado
+#             if client_id:
+#                 pet.client_id = client_id
+#                 pet.save()
+
+#         if saved:
+#             return redirect(reverse("pets_repo"))
+
+#         return render(
+#             request, "pets/form.html", {"errors": errors, "pet": request.POST, "clients": clients},
+#         )
+
+#     pet = None
+#     if id is not None:
+#         pet = get_object_or_404(Pet, pk=id)
+
+#     return render(request, "pets/form.html", {"pet": pet, "clients": clients})
 
 
 def pets_form(request, id=None):
@@ -170,14 +213,14 @@ def pets_form(request, id=None):
             return redirect(reverse("pets_repo"))
 
         return render(
-            request, "pets/form.html", {"errors": errors, "pet": request.POST, "clients": clients}
+            request, "pets/form.html", {"errors": errors, "pet": request.POST, "clients": clients, "Breed": Breed, } ,
         )
 
     pet = None
     if id is not None:
         pet = get_object_or_404(Pet, pk=id)
 
-    return render(request, "pets/form.html", {"pet": pet, "clients": clients})
+    return render(request, "pets/form.html", {"pet": pet, "clients": clients, "Breed": Breed})
 
 
 def pets_form_history(request, id):
@@ -273,7 +316,7 @@ def products_form(request, id=None):
             return redirect(reverse("products_repo"))
         
         return render(
-            request, "products/form.html", {"errors": errors, "product": request.POST, "providers": providers}
+            request, "products/form.html", {"errors": errors, "product": request.POST, "providers": providers},
         )
 
     product = None
@@ -354,7 +397,7 @@ def vets_form(request, id=None):
         
 
         return render(
-            request, "vets/form.html", {"errors": errors, "vet": request.POST}
+            request, "vets/form.html", {"errors": errors, "vet": request.POST},
         )
 
     vet = None

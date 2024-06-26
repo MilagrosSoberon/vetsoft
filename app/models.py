@@ -1,8 +1,11 @@
-from django.db import models
-from django.core.exceptions import ValidationError
+#Importaciones de Python
+import re
 from datetime import date
 
-import re
+#Importaciones de Django
+from django.db import models
+
+
 ##---------clients----------   
 def validate_client(data):
     errors = {}
@@ -10,24 +13,40 @@ def validate_client(data):
     name = data.get("name", "")
     phone = data.get("phone", "")
     email = data.get("email", "")
-    pattern_phone = r'^\+?[\d\s\-\(\)]+$'
+    pattern_phone = r'^54[\d\s\-\(\)]+$'
+    pattern_email = r'^[a-zA-Z0-9_.+-]+@vetsoft.com$'
+    pattern_name = r'^[a-zA-Z\s]+$' #solo letras y espacios
 
     if name == "":
         errors["name"] = "Por favor ingrese un nombre"
-
+    elif not re.match(pattern_name, name):
+        errors["name"] = "El nombre solo puede contener letras y espacios"
     if phone == "":
         errors["phone"] = "Por favor ingrese un teléfono"
     elif not re.match(pattern_phone, phone):
-        raise ValidationError("El formato del teléfono es inválido.")
-
+        errors["phone"] = "El número de teléfono debe comenzar con el prefijo 54 para Argentina."
     if email == "":
         errors["email"] = "Por favor ingrese un email"
     elif email.count("@") == 0:
-        errors["email"] = "Por favor ingrese un email valido"
+        errors["email"] = "Por favor ingrese un email válido"
+    elif not re.match(pattern_email, email):
+        errors["email"] =("El email debe terminar con @vetsoft.com")
+    
 
     return errors
 
 class Client(models.Model):
+    """Esta clase representa un cliente de la veterinaria
+    Contiene los siguientes atributos:
+    - name: nombre del cliente
+    - phone: teléfono del cliente
+    - email: email del cliente
+    - address: dirección del cliente
+    Contiene los siguientes métodos:
+    - __str__: retorna el nombre del cliente
+    - save_client: guarda un cliente en la base de datos
+    - update_client: actualiza los datos de un cliente en la base de datos
+    """
     name = models.CharField(max_length=100)
     phone = models.CharField(max_length=15)
     email = models.EmailField()
@@ -38,6 +57,7 @@ class Client(models.Model):
 
     @classmethod
     def save_client(cls, client_data):
+        """"save_client: Método para guardar un cliente en la base de datos"""
         errors = validate_client(client_data)
 
         if len(errors.keys()) > 0:
@@ -53,6 +73,7 @@ class Client(models.Model):
         return True, None
 
     def update_client(self, client_data):
+        """"update_client: Método para actualizar un cliente en la base de datos"""
         self.name = client_data.get("name", "") or self.name
         self.email = client_data.get("email", "") or self.email
         self.phone = client_data.get("phone", "") or self.phone
@@ -88,6 +109,16 @@ def validate_medicine(data):
     return errors
 
 class Medicine(models.Model):
+    """ Esta clase representa un medicamento de la veterinaria
+    Contiene los siguientes atributos:
+    - name: nombre del medicamento
+    - description: descripción del medicamento
+    - dose: dosis del medicamento
+    Contiene los siguientes métodos:
+    - __str__: retorna el nombre del medicamento
+    - save_medicine: guarda un medicamento en la base de datos
+    - update_medicine: actualiza los datos de un medicamento en la base de datos
+    """
     name = models.CharField(max_length=30)
     description = models.CharField(max_length=50)
     dose = models.IntegerField()
@@ -97,6 +128,7 @@ class Medicine(models.Model):
 
     @classmethod
     def save_medicine(cls, medicine_data):
+        """def save_medicine: Método para guardar un medicamento en la base de datos"""
         errors = validate_medicine(medicine_data)
 
         if len(errors.keys()) > 0:
@@ -110,6 +142,7 @@ class Medicine(models.Model):
 
         return True, None
     def update_medicine(self, medicine_data):
+        """def update_medicine: Método para actualizar un medicamento en la base de datos"""
         self.name = medicine_data.get("name", "") or self.name
         self.description = medicine_data.get("description", "") or self.description
         self.dose = medicine_data.get("dose", "") or self.dose
@@ -132,7 +165,7 @@ def validate_pet(data):
         errors["name"] = "Por favor ingrese un nombre"
 
     if breed == "":
-        errors["breed"] = "Por favor ingrese una raza"
+        errors["breed"] = "Por favor seleccione una raza"
 
     if birthday == "":
         errors["birthday"] = "Por favor ingrese una fecha de nacimiento"
@@ -154,11 +187,47 @@ def validate_pet(data):
                     errors["weight"] = "El peso debe ser un número mayor a cero"
         except ValueError:
             errors["weight"] = "El peso debe ser un número válido"
+
     return errors
-       
+
+##---------clase enumerativa de raza----------   
+class Breed(models.TextChoices):
+    """ Esta clase enumarativa representa las razas de perro
+    y gato de una mascota
+    """
+     # raza de perros
+    LABRADOR = 'labrador', 'Labrador'
+    BEAGLE = 'beagle', 'Beagle'
+    BULLDOG = 'bulldog', 'Bulldog'
+    CHIHUAHUA = 'chihuahua', 'Chihuahua'
+    DOGO_ARGENTINO = 'dogo_argentino', 'Dogo Argentino'
+    PUG = 'pug', 'Pug'
+    POODLE = 'poodle', 'Poodle'
+    ROTTWEILER = 'rottweiler', 'Rottweiler'
+    
+    # razas de gatos
+    SIAMESE = 'siamese', 'Siamés'
+    PERSIAN = 'persian', 'Persa'
+    SPHYNX = 'sphynx', 'Sphynx'
+    BENGAL = 'bengal', 'Bengalí'
+
 class Pet(models.Model):
+    """ Esta clase representa una mascota de la veterinaria
+    Contiene los siguientes atributos:
+    - name: nombre de la mascota
+    - breed: raza de la mascota
+    - birthday: fecha de nacimiento de la mascota
+    - weight: peso de la mascota
+    - client: dueño de la mascota
+    - medicines: medicamentos que toma la mascota
+    - vets: veterinarios que atienden a la mascota
+    Contiene los siguientes métodos:
+    - __str__: retorna el nombre de la mascota
+    - save_pet: guarda una mascota en la base de datos
+    - update_pet: actualiza los datos de una mascota en la base de datos
+    """
     name = models.CharField(max_length=100)
-    breed = models.CharField(max_length=50)
+    breed = models.CharField(max_length=50, choices=Breed.choices)
     birthday = models.DateField()
     weight = models.DecimalField(max_digits=8, decimal_places=3)  
     client = models.ForeignKey("Client", on_delete=models.CASCADE, null=True, blank=True)
@@ -166,10 +235,12 @@ class Pet(models.Model):
     vets = models.ManyToManyField("Vet", blank=True)
 
     def __str__(self):
+        """def __str__: Método para retornar el nombre de la mascota"""
         return self.name
     
     @classmethod
     def save_pet(cls, pet_data):
+        """def save_pet: Método para guardar una mascota en la base de datos"""
         errors = validate_pet(pet_data)
 
         if len(errors.keys()) > 0:
@@ -177,7 +248,7 @@ class Pet(models.Model):
 
         Pet.objects.create(
             name=pet_data.get("name"),
-            breed=pet_data.get("breed", ""),
+            breed=pet_data.get("breed"),
             birthday=pet_data.get("birthday"),
             weight=pet_data.get("weight"),
         )
@@ -185,8 +256,9 @@ class Pet(models.Model):
         return True, None
     
     def update_pet(self, pet_data):
+        """def update_pet: Método para actualizar una mascota en la base de datos"""
         self.name = pet_data.get("name", "") or self.name
-        self.breed = pet_data.get("breed", 0) or self.breed
+        self.breed = pet_data.get("breed", "") or self.breed
         self.birthday = pet_data.get("birthday", "") or self.birthday
         self.weight = pet_data.get("weight", "") or self.weight
         self.save()
@@ -219,17 +291,29 @@ def validate_product(data):
     return errors
 
 class Product(models.Model):
+    """ Esta clase representa un producto de la veterinaria
+    Contiene los siguientes atributos:
+    - name: nombre del producto
+    - type: tipo del producto
+    - price: precio del producto
+    - provider: proveedor del producto
+    Contiene los siguientes métodos:
+    - __str__: retorna el nombre del producto
+    - save_product: guarda un producto en la base de datos
+    - update_product: actualiza los datos de un producto en la base de datos
+    """
     name = models.CharField(max_length=50)
     type = models.CharField(max_length=50)
     price = models.FloatField()
     provider = models.ForeignKey("Provider", on_delete=models.CASCADE, null=True, blank=True)
 
-
     def __str__(self):
+        """def __str__: Método para retornar el nombre del producto"""
         return self.name
     
     @classmethod
     def save_product(cls, product_data):
+        """def save_product: Método para guardar un producto en la base de datos"""
         errors = validate_product(product_data)
 
         if len(errors.keys()) > 0:
@@ -244,6 +328,7 @@ class Product(models.Model):
         return True, None
     
     def update_product(self, product_data):
+        """def update_product: Método para actualizar un producto en la base de datos"""
         self.name = product_data.get("name", "") or self.name
         self.type = product_data.get("type", "") or self.type
         self.price = product_data.get("price", "") or self.price
@@ -253,6 +338,7 @@ class Product(models.Model):
 ##---------providers----------   
 
 def validate_provider(data):
+    """validate_provider: Método para validar los datos de un proveedor"""
     errors = {}
 
     name = data.get("name", "")
@@ -272,8 +358,17 @@ def validate_provider(data):
 
     return errors
 
-
 class Provider(models.Model):
+    """ Esta clase representa un proveedor de la veterinaria
+    Contiene los siguientes atributos:
+    - name: nombre del proveedor
+    - email: email del proveedor
+    - address: dirección del proveedor
+    Contiene los siguientes métodos:
+    - __str__: retorna el nombre del proveedor
+    - save_provider: guarda un proveedor en la base de datos
+    - update_provider: actualiza los datos de un proveedor en la base de datos
+    """
     name = models.CharField(max_length=100)
     email = models.EmailField(max_length=254)
     address = models.CharField(max_length=100)
@@ -283,6 +378,7 @@ class Provider(models.Model):
 
     @classmethod
     def save_provider(cls, provider_data):
+        """save_provider: Método para guardar un proveedor en la base de datos"""
         errors = validate_provider(provider_data)
 
         if len(errors.keys()) > 0:
@@ -297,6 +393,7 @@ class Provider(models.Model):
         return True, None
 
     def update_provider(self, provider_data):
+        """update_provider: Método para actualizar un proveedor en la base de datos"""
         self.name = provider_data.get("name", "") or self.name
         self.email = provider_data.get("email", "") or self.email
         new_address = provider_data.get("address", "")
@@ -312,12 +409,13 @@ class Provider(models.Model):
 
 ##---------vets----------   
 def validate_vet(data):
+    """validate_vet: Método para validar los datos de un veterinario"""
     errors = {}
 
     name = data.get("name", "")
     email = data.get("email", "")
     phone = data.get("phone", "")
-    pattern_phone = r'^\+?[\d\s\-\(\)]+$'
+    pattern_phone = r'^54[\d\s\-\(\)]+$'
 
     if name == "":
         errors["name"] = "Por favor ingrese un nombre"
@@ -327,13 +425,24 @@ def validate_vet(data):
     elif email.count("@") == 0:
         errors["email"] = "Por favor ingrese un email valido"
     if phone == "":
-        errors["phone"] = "Por favor ingrese un teléfono"
+        errors["phone"] = "Por favor ingrese un teléfono"        
     elif not re.match(pattern_phone, phone):
-        raise ValidationError("El formato del teléfono es inválido.")
+        errors["phone"] = "El número de teléfono debe comenzar con el prefijo 54 para Argentina."
+
 
     return errors
 
 class Vet(models.Model):
+    """ Esta clase representa un veterinario de la veterinaria
+    Contiene los siguientes atributos:
+    - name: nombre del veterinario
+    - email: email del veterinario
+    - phone: teléfono del veterinario
+    Contiene los siguientes métodos:
+    - __str__: retorna el nombre del veterinario
+    - save_vet: guarda un veterinario en la base de datos
+    - update_vet: actualiza los datos de un veterinario en la base de datos
+    """
     name = models.CharField(max_length=100)
     email = models.EmailField(max_length=254)
     phone = models.IntegerField()
@@ -343,6 +452,7 @@ class Vet(models.Model):
 
     @classmethod
     def save_vet(cls, vet_data):
+        """def save_vet: Método para guardar un veterinario en la base"""
         errors = validate_vet(vet_data)
 
         if len(errors.keys()) > 0:
@@ -357,6 +467,7 @@ class Vet(models.Model):
         return True, None
 
     def update_vet(self, vet_data):
+        """def update_vet: Método para actualizar un veterinario en la base"""
         self.name = vet_data.get("name", "") or self.name
         self.email = vet_data.get("email", "") or self.email
         self.phone = vet_data.get("phone", "") or self.phone

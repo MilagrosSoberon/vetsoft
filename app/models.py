@@ -257,11 +257,20 @@ class Pet(models.Model):
     
     def update_pet(self, pet_data):
         """def update_pet: Método para actualizar una mascota en la base de datos"""
+        # Validar los datos
+        errors = validate_pet(pet_data)
+        
+        if len(errors.keys()) > 0:
+            return False, errors
+        
+        # Actualizar los datos de la mascota
         self.name = pet_data.get("name", "") or self.name
         self.breed = pet_data.get("breed", "") or self.breed
         self.birthday = pet_data.get("birthday", "") or self.birthday
         self.weight = pet_data.get("weight", "") or self.weight
         self.save()
+
+        return True, None
 
 
 

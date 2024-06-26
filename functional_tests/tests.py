@@ -268,6 +268,20 @@ class ClientCreateEditTestCase(PlaywrightTestCase):
         expect(edit_action).to_have_attribute(
             "href", reverse("clients_edit", kwargs={"id": client.id}),
         )
+        
+    def test_should_view_errors_if_phone_does_not_start_with_54(self):
+        self.page.goto(f"{self.live_server_url}{reverse('clients_form')}")
+
+        expect(self.page.get_by_role("form")).to_be_visible()
+
+        self.page.get_by_label("Nombre").fill("Juan Sebastian Veron")
+        self.page.get_by_label("Teléfono").fill("123456789")
+        self.page.get_by_label("Email").fill("brujita75@vetsoft.com")
+        self.page.get_by_label("Dirección").fill("13 y 44")
+
+        self.page.get_by_role("button", name="Guardar").click()
+
+        expect(self.page.get_by_text("El número de teléfono debe comenzar con el prefijo 54 para Argentina.")).to_be_visible()
 
 
 #  TEST DE PETS

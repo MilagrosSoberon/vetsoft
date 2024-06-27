@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.shortcuts import reverse
 from django.test import TestCase
 
@@ -242,7 +243,7 @@ class PetsTest(TestCase):
                     "name": "Roma",
                     "breed": "Labrador",
                     "birthday": "2021-10-10",
-                    "weight": 10,
+                    "weight": Decimal("10.158"),
                 },
             )
             pets = Pet.objects.all()
@@ -252,7 +253,7 @@ class PetsTest(TestCase):
             self.assertEqual(pets[0].name, "Roma")
             self.assertEqual(pets[0].breed, "Labrador")
             self.assertEqual(pets[0].birthday.strftime('%Y-%m-%d'), "2021-10-10") # formateo la fecha de cumple para comparar
-            self.assertEqual(pets[0].weight, 10)
+            self.assertEqual(pets[0].weight,  Decimal("10.158"))
 
             # verifico si existe en la base de datos
             self.assertTrue(Pet.objects.filter(name="Roma").exists())
@@ -269,7 +270,7 @@ class PetsTest(TestCase):
                     "name": "Roma",
                     "breed": "Labrador",
                     "birthday": "2021-10-10",
-                    "weight": -10,
+                    "weight": Decimal("-10.000"),
                 },
             )
         # Verifico si el peso es negativo y muestra un mensaje de error
@@ -283,7 +284,7 @@ class PetsTest(TestCase):
             "name": "Pepe",
             "breed": "Labrador",
             "birthday": "2026-01-01",
-            "weight": 10,
+            "weight": Decimal("10.252"),
         },
         )
 
@@ -297,7 +298,7 @@ class PetsTest(TestCase):
                     "name": "Posta",
                     "breed": "",
                     "birthday": "2021-10-10",
-                    "weight": 180.05
+                    "weight": Decimal("180.050")
                 },
             )
         # Verifico si no tiene raza y muestra un mensaje de error

@@ -348,11 +348,7 @@ def providers_form(request, id=None):
             saved, errors = Provider.save_provider(request.POST)
         else:
             provider = get_object_or_404(Provider, pk=provider_id)
-            try:
-                provider.update_provider(request.POST)
-            except ValueError as ve:
-                errors["address"] = str(ve)
-                saved = False
+            saved, errors = provider.update_provider(request.POST)
 
         if saved:
             return redirect(reverse("providers_repo"))

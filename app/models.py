@@ -22,7 +22,7 @@ def validate_client(data):
     elif not re.match(pattern_name, name):
         errors["name"] = "El nombre solo puede contener letras y espacios"
     if phone == "":
-        errors["phone"] = "Por favor ingrese un teléfono"
+        errors["phone"] = "Por favor ingrese un teléfono que solo contenga números"
     elif not re.match(pattern_phone, phone):
         errors["phone"] = "El número de teléfono debe comenzar con el prefijo 54 para Argentina y solo puede contener números"
     if email == "":
@@ -425,9 +425,9 @@ def validate_vet(data):
     elif email.count("@") == 0:
         errors["email"] = "Por favor ingrese un email valido"
     if phone == "":
-        errors["phone"] = "Por favor ingrese un teléfono"        
+        errors["phone"] = "Por favor ingrese un teléfono que solo contenga números"       
     elif not re.match(pattern_phone, phone):
-        errors["phone"] = "El número de teléfono debe comenzar con el prefijo 54 para Argentina."
+        errors["phone"] = "El número de teléfono debe comenzar con el prefijo 54 para Argentina y solo puede contener números"
 
 
     return errors

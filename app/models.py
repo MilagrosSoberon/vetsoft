@@ -76,13 +76,19 @@ class Client(models.Model):
 
     def update_client(self, client_data):
         """"update_client: Método para actualizar un cliente en la base de datos"""
+        errors = validate_client(client_data)
+
+        if len(errors.keys()) > 0:
+            return False, errors
+
         self.name = client_data.get("name", "") or self.name
         self.email = client_data.get("email", "") or self.email
         self.phone = client_data.get("phone", "") or self.phone
         self.address = client_data.get("address", "") or self.address
 
         self.save()
-
+        
+        return True, None
  ##---------medicine----------   
 
 

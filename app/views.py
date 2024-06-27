@@ -22,7 +22,7 @@ def clients_form(request, id=None):
             saved, errors = Client.save_client(request.POST)
         else:
             client = get_object_or_404(Client, pk=client_id)
-            client.update_client(request.POST)
+            saved, errors = client.update_client(request.POST)
 
         if saved:
             return redirect(reverse("clients_repo"))

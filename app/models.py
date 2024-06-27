@@ -24,7 +24,7 @@ def validate_client(data):
     if phone == "":
         errors["phone"] = "Por favor ingrese un teléfono"
     elif not re.match(pattern_phone, phone):
-        errors["phone"] = "El número de teléfono debe comenzar con el prefijo 54 para Argentina."
+        errors["phone"] = "El número de teléfono debe comenzar con el prefijo 54 para Argentina y solo puede contener números"
     if email == "":
         errors["email"] = "Por favor ingrese un email"
     elif email.count("@") == 0:

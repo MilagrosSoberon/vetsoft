@@ -305,13 +305,14 @@ def products_form(request, id=None):
                 product.save()
         else:
             product = get_object_or_404(Product, pk=product_id)
-            product.update_product(request.POST)
-            # Obtener el ID del proveedor seleccionado del formulario
-            provider_id = request.POST.get("provider", "")
+            saved, errors = product.update_product(request.POST)
+            if saved:
+                # Obtener el ID del proveedor seleccionado del formulario
+                provider_id = request.POST.get("provider", "")
             # Asociar el proveedor seleccionado con el producto actualizado
-            if provider_id:
-                product.provider_id = provider_id
-                product.save()
+                if provider_id:
+                    product.provider_id = provider_id
+                    product.save()
         
         if saved:
             return redirect(reverse("products_repo"))
@@ -349,11 +350,7 @@ def providers_form(request, id=None):
             saved, errors = Provider.save_provider(request.POST)
         else:
             provider = get_object_or_404(Provider, pk=provider_id)
-            try:
-                provider.update_provider(request.POST)
-            except ValueError as ve:
-                errors["address"] = str(ve)
-                saved = False
+            saved, errors = provider.update_provider(request.POST)
 
         if saved:
             return redirect(reverse("providers_repo"))

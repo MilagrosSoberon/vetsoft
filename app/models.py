@@ -1,6 +1,8 @@
 #Importaciones de Python
+
 import re
 from datetime import date
+from decimal import Decimal
 
 #Importaciones de Django
 from django.db import models
@@ -182,9 +184,9 @@ def validate_pet(data):
         errors["weight"] = "Por favor ingrese un peso"
     else:
         try:
-                decimal_weight = float(weight)
-                if decimal_weight <= 0:
-                    errors["weight"] = "El peso debe ser un número mayor a cero"
+            decimal_weight = Decimal(weight)
+            if decimal_weight <= 0:
+                errors["weight"] = "El peso debe ser un número mayor a cero"
         except ValueError:
             errors["weight"] = "El peso debe ser un número válido"
 
@@ -338,11 +340,17 @@ class Product(models.Model):
     
     def update_product(self, product_data):
         """def update_product: Método para actualizar un producto en la base de datos"""
+        errors = validate_product(product_data)
+
+        if len(errors.keys()) > 0:
+            return False, errors
+        
         self.name = product_data.get("name", "") or self.name
         self.type = product_data.get("type", "") or self.type
         self.price = product_data.get("price", "") or self.price
-
         self.save()
+
+        return True, None
         
 ##---------providers----------   
 
@@ -403,15 +411,17 @@ class Provider(models.Model):
 
     def update_provider(self, provider_data):
         """update_provider: Método para actualizar un proveedor en la base de datos"""
+        errors = validate_provider(provider_data)
+
+        if len(errors.keys()) > 0:
+            return False, errors
+
         self.name = provider_data.get("name", "") or self.name
         self.email = provider_data.get("email", "") or self.email
-        new_address = provider_data.get("address", "")
-        
-        if new_address == "":
-            raise ValueError("Por favor ingrese una dirección")
-        
-        self.address = new_address
+        self.address = provider_data.get("address", "") or self.address
+
         self.save()
+        return True, None
 
 
  ##---------vets----------   

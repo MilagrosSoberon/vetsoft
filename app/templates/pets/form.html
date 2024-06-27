@@ -76,9 +76,8 @@
                         id="weight"
                         name="weight"
                         value="{{pet.weight}}"
-                        class="form-control"
+                        class="form-control {% if errors.weight %}is-invalid{% endif %}"
                         required 
-                        min="0.001" 
                     />
 
                     {% if errors.weight %}

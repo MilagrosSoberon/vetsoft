@@ -329,11 +329,17 @@ class Product(models.Model):
     
     def update_product(self, product_data):
         """def update_product: Método para actualizar un producto en la base de datos"""
+        errors = validate_product(product_data)
+
+        if len(errors.keys()) > 0:
+            return False, errors
+        
         self.name = product_data.get("name", "") or self.name
         self.type = product_data.get("type", "") or self.type
         self.price = product_data.get("price", "") or self.price
-
         self.save()
+
+        return True, None
         
 ##---------providers----------   
 

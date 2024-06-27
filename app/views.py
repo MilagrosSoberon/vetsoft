@@ -201,13 +201,14 @@ def pets_form(request, id=None):
                     pet.save()
         else:
             pet = get_object_or_404(Pet, pk=pet_id)
-            pet.update_pet(request.POST)
+            saved, errors = pet.update_pet(request.POST)
+            if saved:
             # Obtener el ID del cliente seleccionado del formulario
-            client_id = request.POST.get("client", "")
+                client_id = request.POST.get("client", "")
             # Asociar el cliente seleccionado con el animal actualizado
-            if client_id:
-                pet.client_id = client_id
-                pet.save()
+                if client_id:
+                    pet.client_id = client_id
+                    pet.save()
 
         if saved:
             return redirect(reverse("pets_repo"))
@@ -220,7 +221,7 @@ def pets_form(request, id=None):
     if id is not None:
         pet = get_object_or_404(Pet, pk=id)
 
-    return render(request, "pets/form.html", {"pet": pet, "clients": clients, "Breed": Breed})
+    return render(request, "pets/form.html", {"pet": pet, "clients": clients, "Breed": Breed,})
 
 
 def pets_form_history(request, id):

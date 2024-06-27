@@ -2,7 +2,11 @@
 <div class="container">
     <div class="row">
         <div class="col-lg-6 offset-lg-3">
-            <h1>Nueva mascota</h1>
+            {% if pet %}
+            <h1>Editar Mascota</h1>
+            {% else %}
+            <h1>Nueva Mascota</h1>
+            {% endif %}
         </div>
     </div>
 

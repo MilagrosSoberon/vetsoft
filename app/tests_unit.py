@@ -93,7 +93,18 @@ class ClientModelTest(TestCase):
         errors = validate_client(client_data)
         self.assertIn("name", errors)
         self.assertEqual(errors["name"], "El nombre solo puede contener letras y espacios")
-    
+
+    def test_phone_number_blank(self):
+        client_data = {
+            "name": "Juan Sebastian Veron",
+            "phone": "",
+            "address": "13 y 44",
+            "email": "brujita75@vetsoft.com",
+        }
+        errors = validate_client(client_data)
+        self.assertIn("phone", errors)
+        self.assertEqual(errors["phone"], "Por favor ingrese un teléfono")
+
     def test_validate_name_with_valid_characters(self):
         client_data = {
             "name": "Juan Sebastian Veron",

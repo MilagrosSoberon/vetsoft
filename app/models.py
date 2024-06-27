@@ -1,4 +1,5 @@
 #Importaciones de Python
+from decimal import Decimal
 import re
 from datetime import date
 
@@ -182,11 +183,9 @@ def validate_pet(data):
         errors["weight"] = "Por favor ingrese un peso"
     else:
         try:
-                decimal_weight = float(weight)
-                if decimal_weight <= 0:
-                    errors["weight"] = "El peso debe ser un número mayor a cero"
-                elif not weight.endswith('.000'):
-                    errors["weight"] = "El peso debe tener exactamente tres decimales"
+            decimal_weight = Decimal(weight)
+            if decimal_weight <= 0:
+                errors["weight"] = "El peso debe ser un número mayor a cero"
         except ValueError:
             errors["weight"] = "El peso debe ser un número válido"
 

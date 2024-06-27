@@ -130,7 +130,19 @@ class ClientsTest(TestCase):
                 "address": "13 y 44",     
             },
         )
-        self.assertContains(response, "El número de teléfono debe comenzar con el prefijo 54 para Argentina.")
+        self.assertContains(response, "El número de teléfono debe comenzar con el prefijo 54 para Argentina")
+    
+    def test_validation_invalid_format_phone_number(self):
+        response = self.client.post(
+            reverse("clients_form"),
+            data={
+                "name": "Juan Sebastian Veron",
+                "phone": "54aaa1111111",
+                "email": "brujita75@vetsoft.com",
+                "address": "13 y 44",     
+            },
+        )
+        self.assertContains(response, "El número de teléfono debe comenzar con el prefijo 54 para Argentina y solo puede contener números")
     
     def test_validation_invalid_name(self):
         response = self.client.post(
@@ -354,5 +366,5 @@ class VetsTest(TestCase):
                 "email": "brujita75@vetsoft.com",  
             },
         )
-        self.assertContains(response, "El número de teléfono debe comenzar con el prefijo 54 para Argentina.")
+        self.assertContains(response, "El número de teléfono debe comenzar con el prefijo 54 para Argentina")
 

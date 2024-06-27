@@ -282,7 +282,21 @@ class ClientCreateEditTestCase(PlaywrightTestCase):
 
         self.page.get_by_role("button", name="Guardar").click()
 
-        expect(self.page.get_by_text("El número de teléfono debe comenzar con el prefijo 54 para Argentina.")).to_be_visible()
+        expect(self.page.get_by_text("El número de teléfono debe comenzar con el prefijo 54 para Argentina")).to_be_visible()
+
+    def test_should_view_errors_if_phone_has_letters(self):
+        self.page.goto(f"{self.live_server_url}{reverse('clients_form')}")
+
+        expect(self.page.get_by_role("form")).to_be_visible()
+
+        self.page.get_by_label("Nombre").fill("Juan Sebastian Veron")
+        self.page.get_by_label("Teléfono").fill("54221634soyunerror")
+        self.page.get_by_label("Email").fill("brujita75@vetsoft.com")
+        self.page.get_by_label("Dirección").fill("13 y 44")
+
+        self.page.get_by_role("button", name="Guardar").click()
+
+        expect(self.page.get_by_text("El número de teléfono debe comenzar con el prefijo 54 para Argentina y solo puede contener números")).to_be_visible()
 
 
 #  TEST DE PETS

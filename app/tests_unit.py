@@ -61,17 +61,17 @@ class ClientModelTest(TestCase):
 
         self.assertEqual(client_updated.phone, "54221555232")
     
-    def test_validate_phone_number_in_phone_field(self):
+    def test_validate_phone_number_with_letters(self):
         client_data = {
             "name": "Juan Sebastian Veron",
-            "phone": "",
+            "phone": "54221aaa221",
             "address": "13 y 44",
             "email": "brujita75@vetsoft.com",
         }
         
         errors = validate_client(client_data)
         self.assertIn("phone", errors)
-        self.assertEqual(errors["phone"], "Por favor ingrese un teléfono")
+        self.assertEqual(errors["phone"], "El número de teléfono debe comenzar con el prefijo 54 para Argentina y solo puede contener números")
     
     def test_phone_number_without_54(self):
         client_data = {
@@ -82,7 +82,7 @@ class ClientModelTest(TestCase):
         }
         errors = validate_client(client_data)
         self.assertIn("phone", errors)
-        self.assertEqual(errors["phone"], "El número de teléfono debe comenzar con el prefijo 54 para Argentina.")
+        self.assertEqual(errors["phone"], "El número de teléfono debe comenzar con el prefijo 54 para Argentina")
     
     def test_validate_name_with_invalid_characters(self):
         client_data = {
@@ -94,7 +94,18 @@ class ClientModelTest(TestCase):
         errors = validate_client(client_data)
         self.assertIn("name", errors)
         self.assertEqual(errors["name"], "El nombre solo puede contener letras y espacios")
-    
+
+    def test_phone_number_blank(self):
+        client_data = {
+            "name": "Juan Sebastian Veron",
+            "phone": "",
+            "address": "13 y 44",
+            "email": "brujita75@vetsoft.com",
+        }
+        errors = validate_client(client_data)
+        self.assertIn("phone", errors)
+        self.assertEqual(errors["phone"], "Por favor ingrese un teléfono")
+
     def test_validate_name_with_valid_characters(self):
         client_data = {
             "name": "Juan Sebastian Veron",
@@ -435,7 +446,7 @@ class VetModelTest(TestCase):
         }
         errors = validate_vet(vet_data)
         self.assertIn("phone", errors)
-        self.assertEqual(errors["phone"], "El número de teléfono debe comenzar con el prefijo 54 para Argentina.")
+        self.assertEqual(errors["phone"], "El número de teléfono debe comenzar con el prefijo 54 para Argentina")
 
         
 

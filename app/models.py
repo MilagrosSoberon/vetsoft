@@ -15,6 +15,7 @@ def validate_client(data):
     name = data.get("name", "")
     phone = data.get("phone", "")
     email = data.get("email", "")
+    pattern_phone_prefix = r'^54'
     pattern_phone = r'^54[\d\s\-\(\)]+$'
     pattern_email = r'^[a-zA-Z0-9_.+-]+@vetsoft.com$'
     pattern_name = r'^[a-zA-Z\s]+$' #solo letras y espacios
@@ -25,8 +26,10 @@ def validate_client(data):
         errors["name"] = "El nombre solo puede contener letras y espacios"
     if phone == "":
         errors["phone"] = "Por favor ingrese un teléfono"
+    elif not re.match(pattern_phone_prefix, phone):
+        errors["phone"] = "El número de teléfono debe comenzar con el prefijo 54 para Argentina"
     elif not re.match(pattern_phone, phone):
-        errors["phone"] = "El número de teléfono debe comenzar con el prefijo 54 para Argentina."
+        errors["phone"] = "El número de teléfono debe comenzar con el prefijo 54 para Argentina y solo puede contener números"
     if email == "":
         errors["email"] = "Por favor ingrese un email"
     elif email.count("@") == 0:
@@ -444,9 +447,9 @@ def validate_vet(data):
     elif email.count("@") == 0:
         errors["email"] = "Por favor ingrese un email valido"
     if phone == "":
-        errors["phone"] = "Por favor ingrese un teléfono"        
+        errors["phone"] = "Por favor ingrese un teléfono"       
     elif not re.match(pattern_phone, phone):
-        errors["phone"] = "El número de teléfono debe comenzar con el prefijo 54 para Argentina."
+        errors["phone"] = "El número de teléfono debe comenzar con el prefijo 54 para Argentina"
 
 
     return errors

@@ -1,3 +1,4 @@
+from decimal import Decimal
 import os
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
@@ -320,7 +321,7 @@ class PetCreateWeightgreaterThanZero(PlaywrightTestCase):
         self.page.get_by_label("Nombre").fill("Roma")
         self.page.select_option("#breed", label="Dogo Argentino")  # Usa select_option para seleccionar la raza
         self.page.get_by_label("Fecha de Cumpleaños").fill("2022-11-30")
-        self.page.get_by_label("Peso").fill("-200")
+        self.page.get_by_label("Peso").fill("-200.000")
         
         self.page.get_by_role("button", name="Guardar").click()
 
@@ -338,7 +339,7 @@ class PetCreateValidateTestCase(PlaywrightTestCase):
         self.page.get_by_label("Nombre").fill("Firulais")
         self.page.select_option("#breed", label="Labrador")  # Usa select_option para seleccionar la raza
         self.page.get_by_label("Fecha de Cumpleaños").fill("2022-01-01")
-        self.page.get_by_label("Peso").fill("130")
+        self.page.get_by_label("Peso").fill("130.065")
         
 
         self.page.get_by_role("button", name="Guardar").click()
@@ -346,7 +347,7 @@ class PetCreateValidateTestCase(PlaywrightTestCase):
         expect(self.page.get_by_text("Firulais")).to_be_visible()
         expect(self.page.get_by_text("Labrador")).to_be_visible()
         expect(self.page.get_by_text("Jan. 1, 2022")).to_be_visible()
-        expect(self.page.get_by_text("130")).to_be_visible()
+        expect(self.page.get_by_text("130.065")).to_be_visible()
 
 
 
@@ -366,7 +367,7 @@ class PetCreateValidateTestCase(PlaywrightTestCase):
         self.page.get_by_label("Nombre").fill("Firulais")
         self.page.select_option("#breed", label="Labrador")  # Usa select_option para seleccionar la raza
         self.page.get_by_label("Fecha de Cumpleaños").fill("2026-01-01")
-        self.page.get_by_label("Peso").fill("130")
+        self.page.get_by_label("Peso").fill("130.000")
 
         self.page.get_by_role("button", name="Guardar").click()
 
@@ -381,7 +382,7 @@ class PetCreateValidateTestCase(PlaywrightTestCase):
             name="Firulais",
             breed="Labrador",
             birthday="2022-01-01",
-            weight="150",
+            weight= Decimal("150.752"),
         )
 
         path = reverse("pets_edit", kwargs={"id": pet.id})
@@ -390,7 +391,7 @@ class PetCreateValidateTestCase(PlaywrightTestCase):
         self.page.get_by_label("Nombre").fill("Pepito")
         self.page.select_option("#breed", label="Beagle")  # Usa select_option para seleccionar la raza
         self.page.get_by_label("Fecha de Cumpleaños").fill("2002-10-10")
-        self.page.get_by_label("Peso").fill("150")
+        self.page.get_by_label("Peso").fill("150.752")
 
         self.page.get_by_role("button", name="Guardar").click()
 
@@ -401,7 +402,7 @@ class PetCreateValidateTestCase(PlaywrightTestCase):
         expect(self.page.get_by_text("Pepito")).to_be_visible()
         expect(self.page.get_by_text("Beagle")).to_be_visible()
         expect(self.page.get_by_text("Oct. 10, 2002")).to_be_visible()
-        expect(self.page.get_by_text("150")).to_be_visible()
+        expect(self.page.get_by_text("150.752")).to_be_visible()
 
         edit_action = self.page.get_by_role("link", name="Editar")
         expect(edit_action).to_have_attribute(

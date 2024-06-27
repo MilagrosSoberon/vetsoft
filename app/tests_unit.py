@@ -1,4 +1,5 @@
 from datetime import date
+from decimal import Decimal
 
 from django.test import TestCase
 
@@ -205,7 +206,7 @@ class PetModelTest(TestCase):
             "name": "Fido",
             "breed": 2,
             "birthday": "2020-01-01",
-            "weight": 10,
+            "weight": Decimal("10.000"),
         }
         errors = validate_pet(mascota_data)
         # verifica que no hay error en el peso
@@ -219,7 +220,7 @@ class PetModelTest(TestCase):
             "name": "Roma",
             "breed": 1,
             "birthday": "2021-01-01",
-            "weight": -2,
+            "weight": Decimal("-2.000"),
         }
        
         errors= validate_pet(mascota_data)
@@ -235,7 +236,7 @@ class PetModelTest(TestCase):
             "name": "Pepe",
             "breed": "Labrador",
             "birthday": today,
-            "weight": 10,
+            "weight": Decimal("10.000"),
             "client": 1,
         }
 
@@ -252,7 +253,7 @@ class PetModelTest(TestCase):
             "name": "Pepe",
             "breed": "Labrador",
             "birthday": "2020-01-01",
-            "weight": 10,
+            "weight": Decimal("10.000"),
             "client": 1,
         }
 
@@ -285,7 +286,7 @@ class PetModelTest(TestCase):
             "name": "Charly",
             "breed": "Pug",
             "birthday": "2020-06-18",
-            "weight": 130
+            "weight": Decimal("130.000")
         }
         errors = validate_pet(mascota_data)
         # verifica que no hay error en el peso
@@ -298,7 +299,7 @@ class PetModelTest(TestCase):
             "name": "Charly",
             "breed": "",
             "birthday": "2020-06-18",
-            "weight": 130
+            "weight": Decimal("130.000")
         }
         errors = validate_pet(mascota_data)
         # verifica que salga el error correspondiente

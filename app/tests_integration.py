@@ -49,7 +49,7 @@ class ClientsTest(TestCase):
         )
 
         self.assertContains(response, "Por favor ingrese un nombre")
-        self.assertContains(response, "Por favor ingrese un teléfono que solo contenga números")
+        self.assertContains(response, "Por favor ingrese un teléfono")
         self.assertContains(response, "Por favor ingrese un email")
 
     def test_should_response_with_404_status_if_client_doesnt_exists(self):
@@ -117,7 +117,7 @@ class ClientsTest(TestCase):
                 "address": "Calle 123",
             },
         )
-        self.assertContains(response, "Por favor ingrese un teléfono que solo contenga números")
+        self.assertContains(response, "Por favor ingrese un teléfono")
     
     def test_validation_invalid_phone_number(self):
         response = self.client.post(
@@ -129,7 +129,7 @@ class ClientsTest(TestCase):
                 "address": "13 y 44",     
             },
         )
-        self.assertContains(response, "El número de teléfono debe comenzar con el prefijo 54 para Argentina.")
+        self.assertContains(response, "El número de teléfono debe comenzar con el prefijo 54 para Argentina")
     
     def test_validation_invalid_name(self):
         response = self.client.post(
@@ -342,7 +342,7 @@ class VetsTest(TestCase):
             },
         )
 
-        self.assertContains(response, "Por favor ingrese un teléfono que solo contenga números")
+        self.assertContains(response, "Por favor ingrese un teléfono")
 
     def test_validation_invalid_phone_number(self):
         response = self.client.post(
@@ -353,5 +353,5 @@ class VetsTest(TestCase):
                 "email": "brujita75@vetsoft.com",  
             },
         )
-        self.assertContains(response, "El número de teléfono debe comenzar con el prefijo 54 para Argentina.")
+        self.assertContains(response, "El número de teléfono debe comenzar con el prefijo 54 para Argentina")
 

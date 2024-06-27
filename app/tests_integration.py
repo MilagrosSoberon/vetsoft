@@ -49,7 +49,7 @@ class ClientsTest(TestCase):
         )
 
         self.assertContains(response, "Por favor ingrese un nombre")
-        self.assertContains(response, "Por favor ingrese un teléfono")
+        self.assertContains(response, "Por favor ingrese un teléfono que solo contenga números")
         self.assertContains(response, "Por favor ingrese un email")
 
     def test_should_response_with_404_status_if_client_doesnt_exists(self):
@@ -117,7 +117,7 @@ class ClientsTest(TestCase):
                 "address": "Calle 123",
             },
         )
-        self.assertContains(response, "Por favor ingrese un teléfono")
+        self.assertContains(response, "Por favor ingrese un teléfono que solo contenga números")
     
     def test_validation_invalid_phone_number(self):
         response = self.client.post(
@@ -342,7 +342,7 @@ class VetsTest(TestCase):
             },
         )
 
-        self.assertContains(response, "Por favor ingrese un teléfono")
+        self.assertContains(response, "Por favor ingrese un teléfono que solo contenga números")
 
     def test_validation_invalid_phone_number(self):
         response = self.client.post(

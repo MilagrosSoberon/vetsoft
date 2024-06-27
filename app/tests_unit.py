@@ -70,7 +70,7 @@ class ClientModelTest(TestCase):
         
         errors = validate_client(client_data)
         self.assertIn("phone", errors)
-        self.assertEqual(errors["phone"], "Por favor ingrese un teléfono")
+        self.assertEqual(errors["phone"], "Por favor ingrese un teléfono que solo contenga números")
     
     def test_phone_number_without_54(self):
         client_data = {
@@ -423,7 +423,7 @@ class VetModelTest(TestCase):
         
         errors = validate_client(vet_data)
         self.assertIn("phone", errors)
-        self.assertEqual(errors["phone"], "Por favor ingrese un teléfono")
+        self.assertEqual(errors["phone"], "Por favor ingrese un teléfono que solo contenga números")
     
     def test_phone_number_without_54(self):
         vet_data = {

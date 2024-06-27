@@ -82,12 +82,12 @@ class Client(models.Model):
             return False, errors
 
         self.name = client_data.get("name", "") or self.name
-        self.email = client_data.get("email", "") or self.email
         self.phone = client_data.get("phone", "") or self.phone
+        self.email = client_data.get("email", "") or self.email
         # Actualizar la dirección, permitiendo que se establezca a None si no se proporciona
         if "address" in client_data:
             self.address = client_data["address"]
-       
+
         self.save()
 
         return True, None

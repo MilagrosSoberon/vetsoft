@@ -11,8 +11,8 @@ class ClientModelTest(TestCase):
             {
                 "name": "Juan Sebastian Veron",
                 "phone": "54221555232",
-                "address": "13 y 44",
                 "email": "brujita75@vetsoft.com",
+                "address": "13 y 44",
             },
         )
         clients = Client.objects.all()
@@ -20,26 +20,34 @@ class ClientModelTest(TestCase):
 
         self.assertEqual(clients[0].name, "Juan Sebastian Veron")
         self.assertEqual(clients[0].phone, "54221555232")
-        self.assertEqual(clients[0].address, "13 y 44")
         self.assertEqual(clients[0].email, "brujita75@vetsoft.com")
+        self.assertEqual(clients[0].address, "13 y 44")
 
     def test_can_update_client(self):
         Client.save_client(
             {
                 "name": "Juan Sebastian Veron",
                 "phone": "54221555232",
-                "address": "13 y 44",
                 "email": "brujita75@vetsoft.com",
+                "address": "13 y 44",
             },
         )
         client = Client.objects.get(pk=1)
 
         self.assertEqual(client.phone, "54221555232")
 
-        client.update_client({"phone": "54221555233"})
+        client.update_client({
+            "id": client.id,
+            "name": client.name,
+            "phone": "54221555233",
+            "email": client.email,
+            "address": client.address,
+        })
+
 
         client_updated = Client.objects.get(pk=1)
 
+        print(client_updated.phone)
         self.assertEqual(client_updated.phone, "54221555233")
 
     def test_update_client_with_error(self):

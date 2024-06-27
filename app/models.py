@@ -1,6 +1,8 @@
 #Importaciones de Python
+
 import re
 from datetime import date
+from decimal import Decimal
 
 #Importaciones de Django
 from django.db import models
@@ -182,9 +184,9 @@ def validate_pet(data):
         errors["weight"] = "Por favor ingrese un peso"
     else:
         try:
-                decimal_weight = float(weight)
-                if decimal_weight <= 0:
-                    errors["weight"] = "El peso debe ser un número mayor a cero"
+            decimal_weight = Decimal(weight)
+            if decimal_weight <= 0:
+                errors["weight"] = "El peso debe ser un número mayor a cero"
         except ValueError:
             errors["weight"] = "El peso debe ser un número válido"
 

@@ -400,15 +400,17 @@ class Provider(models.Model):
 
     def update_provider(self, provider_data):
         """update_provider: Método para actualizar un proveedor en la base de datos"""
+        errors = validate_provider(provider_data)
+
+        if len(errors.keys()) > 0:
+            return False, errors
+
         self.name = provider_data.get("name", "") or self.name
         self.email = provider_data.get("email", "") or self.email
-        new_address = provider_data.get("address", "")
-        
-        if new_address == "":
-            raise ValueError("Por favor ingrese una dirección")
-        
-        self.address = new_address
+        self.address = provider_data.get("address", "") or self.address
+
         self.save()
+        return True, None
 
 
  ##---------vets----------   

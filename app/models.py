@@ -428,9 +428,9 @@ def validate_vet(data):
     elif email.count("@") == 0:
         errors["email"] = "Por favor ingrese un email valido"
     if phone == "":
-        errors["phone"] = "Por favor ingrese un teléfono que solo contenga números"       
+        errors["phone"] = "Por favor ingrese un teléfono"       
     elif not re.match(pattern_phone, phone):
-        errors["phone"] = "El número de teléfono debe comenzar con el prefijo 54 para Argentina y solo puede contener números"
+        errors["phone"] = "El número de teléfono debe comenzar con el prefijo 54 para Argentina"
 
 
     return errors

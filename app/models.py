@@ -185,6 +185,8 @@ def validate_pet(data):
                 decimal_weight = float(weight)
                 if decimal_weight <= 0:
                     errors["weight"] = "El peso debe ser un número mayor a cero"
+                elif not weight.endswith('.000'):
+                    errors["weight"] = "El peso debe tener exactamente tres decimales"
         except ValueError:
             errors["weight"] = "El peso debe ser un número válido"
 

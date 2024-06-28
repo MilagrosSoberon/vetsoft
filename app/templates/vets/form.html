@@ -4,7 +4,11 @@
 <div class="container">
     <div class="row">
         <div class="col-lg-6 offset-lg-3">
+            {% if vet %}
+            <h1>Editar Veterinario</h1>
+            {% else %}
             <h1>Nuevo Veterinario</h1>
+            {% endif %}        
         </div>
     </div>
 

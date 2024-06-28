@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.shortcuts import reverse
 from django.test import TestCase
 
@@ -84,10 +85,10 @@ class ClientsTest(TestCase):
 
     def test_edit_user_with_valid_data(self):
         client = Client.objects.create(
-            name="Juan Sebastián Veron",
-            address="13 y 44",
+            name="Juan Sebastian Veron",
             phone="54221555232",
             email="brujita75@vetsoft.com",
+            address="13 y 44",
         )
 
         response = self.client.post(
@@ -95,6 +96,9 @@ class ClientsTest(TestCase):
             data={
                 "id": client.id,
                 "name": "Guido Carrillo",
+                "phone": client.phone,
+                "email": client.email,
+                "address": client.address,
             },
         )
 
@@ -102,10 +106,11 @@ class ClientsTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
         editedClient = Client.objects.get(pk=client.id)
+
         self.assertEqual(editedClient.name, "Guido Carrillo")
         self.assertEqual(editedClient.phone, client.phone)
-        self.assertEqual(editedClient.address, client.address)
         self.assertEqual(editedClient.email, client.email)
+        self.assertEqual(editedClient.address, client.address)
         
     def test_validation_valid_phone(self):
         response = self.client.post(
@@ -129,7 +134,19 @@ class ClientsTest(TestCase):
                 "address": "13 y 44",     
             },
         )
-        self.assertContains(response, "El número de teléfono debe comenzar con el prefijo 54 para Argentina.")
+        self.assertContains(response, "El número de teléfono debe comenzar con el prefijo 54 para Argentina")
+    
+    def test_validation_invalid_format_phone_number(self):
+        response = self.client.post(
+            reverse("clients_form"),
+            data={
+                "name": "Juan Sebastian Veron",
+                "phone": "54aaa1111111",
+                "email": "brujita75@vetsoft.com",
+                "address": "13 y 44",     
+            },
+        )
+        self.assertContains(response, "El número de teléfono debe comenzar con el prefijo 54 para Argentina y solo puede contener números")
     
     def test_validation_invalid_name(self):
         response = self.client.post(
@@ -242,7 +259,7 @@ class PetsTest(TestCase):
                     "name": "Roma",
                     "breed": "Labrador",
                     "birthday": "2021-10-10",
-                    "weight": 10,
+                    "weight": Decimal("10.158"),
                 },
             )
             pets = Pet.objects.all()
@@ -252,7 +269,7 @@ class PetsTest(TestCase):
             self.assertEqual(pets[0].name, "Roma")
             self.assertEqual(pets[0].breed, "Labrador")
             self.assertEqual(pets[0].birthday.strftime('%Y-%m-%d'), "2021-10-10") # formateo la fecha de cumple para comparar
-            self.assertEqual(pets[0].weight, 10)
+            self.assertEqual(pets[0].weight,  Decimal("10.158"))
 
             # verifico si existe en la base de datos
             self.assertTrue(Pet.objects.filter(name="Roma").exists())
@@ -269,7 +286,7 @@ class PetsTest(TestCase):
                     "name": "Roma",
                     "breed": "Labrador",
                     "birthday": "2021-10-10",
-                    "weight": -10,
+                    "weight": Decimal("-10.000"),
                 },
             )
         # Verifico si el peso es negativo y muestra un mensaje de error
@@ -283,7 +300,7 @@ class PetsTest(TestCase):
             "name": "Pepe",
             "breed": "Labrador",
             "birthday": "2026-01-01",
-            "weight": 10,
+            "weight": Decimal("10.252"),
         },
         )
 
@@ -297,7 +314,7 @@ class PetsTest(TestCase):
                     "name": "Posta",
                     "breed": "",
                     "birthday": "2021-10-10",
-                    "weight": 180.05
+                    "weight": Decimal("180.050")
                 },
             )
         # Verifico si no tiene raza y muestra un mensaje de error
@@ -353,5 +370,5 @@ class VetsTest(TestCase):
                 "email": "brujita75@vetsoft.com",  
             },
         )
-        self.assertContains(response, "El número de teléfono debe comenzar con el prefijo 54 para Argentina.")
+        self.assertContains(response, "El número de teléfono debe comenzar con el prefijo 54 para Argentina")
 

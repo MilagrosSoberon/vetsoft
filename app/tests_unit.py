@@ -1,4 +1,5 @@
 from datetime import date
+from decimal import Decimal
 
 from django.test import TestCase
 
@@ -10,8 +11,8 @@ class ClientModelTest(TestCase):
             {
                 "name": "Juan Sebastian Veron",
                 "phone": "54221555232",
-                "address": "13 y 44",
                 "email": "brujita75@vetsoft.com",
+                "address": "13 y 44",
             },
         )
         clients = Client.objects.all()
@@ -19,23 +20,30 @@ class ClientModelTest(TestCase):
 
         self.assertEqual(clients[0].name, "Juan Sebastian Veron")
         self.assertEqual(clients[0].phone, "54221555232")
-        self.assertEqual(clients[0].address, "13 y 44")
         self.assertEqual(clients[0].email, "brujita75@vetsoft.com")
+        self.assertEqual(clients[0].address, "13 y 44")
 
     def test_can_update_client(self):
         Client.save_client(
             {
                 "name": "Juan Sebastian Veron",
                 "phone": "54221555232",
-                "address": "13 y 44",
                 "email": "brujita75@vetsoft.com",
+                "address": "13 y 44",
             },
         )
         client = Client.objects.get(pk=1)
 
         self.assertEqual(client.phone, "54221555232")
 
-        client.update_client({"phone": "54221555233"})
+        client.update_client({
+            "id": client.id,
+            "name": client.name,
+            "phone": "54221555233",
+            "email": client.email,
+            "address": client.address,
+        })
+
 
         client_updated = Client.objects.get(pk=1)
 
@@ -60,17 +68,17 @@ class ClientModelTest(TestCase):
 
         self.assertEqual(client_updated.phone, "54221555232")
     
-    def test_validate_phone_number_in_phone_field(self):
+    def test_validate_phone_number_with_letters(self):
         client_data = {
             "name": "Juan Sebastian Veron",
-            "phone": "",
+            "phone": "54221aaa221",
             "address": "13 y 44",
             "email": "brujita75@vetsoft.com",
         }
         
         errors = validate_client(client_data)
         self.assertIn("phone", errors)
-        self.assertEqual(errors["phone"], "Por favor ingrese un teléfono")
+        self.assertEqual(errors["phone"], "El número de teléfono debe comenzar con el prefijo 54 para Argentina y solo puede contener números")
     
     def test_phone_number_without_54(self):
         client_data = {
@@ -81,7 +89,7 @@ class ClientModelTest(TestCase):
         }
         errors = validate_client(client_data)
         self.assertIn("phone", errors)
-        self.assertEqual(errors["phone"], "El número de teléfono debe comenzar con el prefijo 54 para Argentina.")
+        self.assertEqual(errors["phone"], "El número de teléfono debe comenzar con el prefijo 54 para Argentina")
     
     def test_validate_name_with_invalid_characters(self):
         client_data = {
@@ -93,7 +101,18 @@ class ClientModelTest(TestCase):
         errors = validate_client(client_data)
         self.assertIn("name", errors)
         self.assertEqual(errors["name"], "El nombre solo puede contener letras y espacios")
-    
+
+    def test_phone_number_blank(self):
+        client_data = {
+            "name": "Juan Sebastian Veron",
+            "phone": "",
+            "address": "13 y 44",
+            "email": "brujita75@vetsoft.com",
+        }
+        errors = validate_client(client_data)
+        self.assertIn("phone", errors)
+        self.assertEqual(errors["phone"], "Por favor ingrese un teléfono")
+
     def test_validate_name_with_valid_characters(self):
         client_data = {
             "name": "Juan Sebastian Veron",
@@ -104,7 +123,39 @@ class ClientModelTest(TestCase):
         errors = validate_client(client_data)
         self.assertNotIn("name", errors)
 
+    def test_validate_email_with_invalid_format(self):
+        client_data = {
+            "name": "Juan Sebastian Veron",
+            "phone": "54221555232",
+            "address": "13 y 44",
+            "email": "brujita75gmail.com",
+        }
+        errors = validate_client(client_data)
+        self.assertIn("email", errors)
+        self.assertEqual(errors["email"], "Por favor ingrese un email válido")
+
+    def test_validate_email_without_vetsoft_domain(self):
+        client_data = {
+            "name": "Juan Sebastian Veron",
+            "phone": "54221555232",
+            "address": "13 y 44",
+            "email": "brujita75@gmail.com",
+        }
+        errors = validate_client(client_data)
+        self.assertIn("email", errors)
+        self.assertEqual(errors["email"], "El email debe terminar con @vetsoft.com")
+
     
+    def test_validate_email_with_valid_vetsoft_domain(self):
+        client_data = {
+            "name": "Juan Sebastian Veron",
+            "phone": "54221555232",
+            "address": "13 y 44",
+            "email": "brujita75@vetsoft.com",
+        }
+        errors = validate_client(client_data)
+        self.assertNotIn("email", errors)
+
 
 class ProviderModelTest(TestCase):
     
@@ -162,7 +213,7 @@ class PetModelTest(TestCase):
             "name": "Fido",
             "breed": 2,
             "birthday": "2020-01-01",
-            "weight": 10,
+            "weight": Decimal("10.000"),
         }
         errors = validate_pet(mascota_data)
         # verifica que no hay error en el peso
@@ -176,7 +227,7 @@ class PetModelTest(TestCase):
             "name": "Roma",
             "breed": 1,
             "birthday": "2021-01-01",
-            "weight": -2,
+            "weight": Decimal("-2.000"),
         }
        
         errors= validate_pet(mascota_data)
@@ -192,7 +243,7 @@ class PetModelTest(TestCase):
             "name": "Pepe",
             "breed": "Labrador",
             "birthday": today,
-            "weight": 10,
+            "weight": Decimal("10.000"),
             "client": 1,
         }
 
@@ -209,7 +260,7 @@ class PetModelTest(TestCase):
             "name": "Pepe",
             "breed": "Labrador",
             "birthday": "2020-01-01",
-            "weight": 10,
+            "weight": Decimal("10.000"),
             "client": 1,
         }
 
@@ -242,7 +293,7 @@ class PetModelTest(TestCase):
             "name": "Charly",
             "breed": "Pug",
             "birthday": "2020-06-18",
-            "weight": 130
+            "weight": Decimal("130.000")
         }
         errors = validate_pet(mascota_data)
         # verifica que no hay error en el peso
@@ -255,7 +306,7 @@ class PetModelTest(TestCase):
             "name": "Charly",
             "breed": "",
             "birthday": "2020-06-18",
-            "weight": 130
+            "weight": Decimal("130.000")
         }
         errors = validate_pet(mascota_data)
         # verifica que salga el error correspondiente
@@ -360,7 +411,7 @@ class VetModelTest(TestCase):
 
         vet_updated = Vet.objects.get(pk=1)
 
-        self.assertEqual(vet_updated.phone, 54221555233)
+        self.assertEqual(vet_updated.phone, 54221555232)
     
     def test_update_vet_with_error(self):
         Vet.save_vet(
@@ -402,7 +453,7 @@ class VetModelTest(TestCase):
         }
         errors = validate_vet(vet_data)
         self.assertIn("phone", errors)
-        self.assertEqual(errors["phone"], "El número de teléfono debe comenzar con el prefijo 54 para Argentina.")
+        self.assertEqual(errors["phone"], "El número de teléfono debe comenzar con el prefijo 54 para Argentina")
 
         
 

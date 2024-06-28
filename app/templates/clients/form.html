@@ -4,7 +4,11 @@
 <div class="container">
     <div class="row">
         <div class="col-lg-6 offset-lg-3">
+            {% if client %}
+            <h1>Editar Cliente</h1>
+            {% else %}
             <h1>Nuevo Cliente</h1>
+            {% endif %}
         </div>
     </div>
 
@@ -37,7 +41,7 @@
                 </div>
                 <div>
                     <label for="phone" class="form-label">Teléfono</label>
-                    <input type="number"
+                    <input type="text"
                         id="phone"
                         name="phone"
                         class="form-control {% if errors.phone %}is-invalid{% endif %}"

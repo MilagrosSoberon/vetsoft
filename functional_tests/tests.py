@@ -1,3 +1,4 @@
+from decimal import Decimal
 import os
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
@@ -210,6 +211,33 @@ class ClientCreateEditTestCase(PlaywrightTestCase):
             self.page.get_by_text("Por favor ingrese un email válido"),
         ).to_be_visible()
 
+    def test_should_view_errors_if_name_less_than_three_words(self):
+        self.page.goto(f"{self.live_server_url}{reverse('clients_form')}")
+
+        expect(self.page.get_by_role("form")).to_be_visible()
+
+        self.page.get_by_role("button", name="Guardar").click()
+
+        expect(self.page.get_by_text("Por favor ingrese un nombre")).to_be_visible()
+        expect(self.page.get_by_text("Por favor ingrese un teléfono")).to_be_visible()
+        expect(self.page.get_by_text("Por favor ingrese un email")).to_be_visible()
+
+        self.page.get_by_label("Nombre").fill("Ja")
+        self.page.get_by_label("Teléfono").fill("54221555232")
+        self.page.get_by_label("Email").fill("brujita75")
+        self.page.get_by_label("Dirección").fill("13 y 44")
+
+        self.page.get_by_role("button", name="Guardar").click()
+
+        expect(self.page.get_by_text("El nombre debe tener al menos 3 caracteres")).to_be_visible()
+        expect(
+            self.page.get_by_text("Por favor ingrese un teléfono"),
+        ).not_to_be_visible()
+
+        expect(
+            self.page.get_by_text("Por favor ingrese un email válido"),
+        ).to_be_visible()
+
     def test_email_must_end_with_vetsoft_com(self):
         
         self.page.goto(f"{self.live_server_url}{reverse('clients_form')}")
@@ -268,6 +296,34 @@ class ClientCreateEditTestCase(PlaywrightTestCase):
         expect(edit_action).to_have_attribute(
             "href", reverse("clients_edit", kwargs={"id": client.id}),
         )
+        
+    def test_should_view_errors_if_phone_does_not_start_with_54(self):
+        self.page.goto(f"{self.live_server_url}{reverse('clients_form')}")
+
+        expect(self.page.get_by_role("form")).to_be_visible()
+
+        self.page.get_by_label("Nombre").fill("Juan Sebastian Veron")
+        self.page.get_by_label("Teléfono").fill("123456789")
+        self.page.get_by_label("Email").fill("brujita75@vetsoft.com")
+        self.page.get_by_label("Dirección").fill("13 y 44")
+
+        self.page.get_by_role("button", name="Guardar").click()
+
+        expect(self.page.get_by_text("El número de teléfono debe comenzar con el prefijo 54 para Argentina")).to_be_visible()
+
+    def test_should_view_errors_if_phone_has_letters(self):
+        self.page.goto(f"{self.live_server_url}{reverse('clients_form')}")
+
+        expect(self.page.get_by_role("form")).to_be_visible()
+
+        self.page.get_by_label("Nombre").fill("Juan Sebastian Veron")
+        self.page.get_by_label("Teléfono").fill("54221634soyunerror")
+        self.page.get_by_label("Email").fill("brujita75@vetsoft.com")
+        self.page.get_by_label("Dirección").fill("13 y 44")
+
+        self.page.get_by_role("button", name="Guardar").click()
+
+        expect(self.page.get_by_text("El número de teléfono debe comenzar con el prefijo 54 para Argentina y solo puede contener números")).to_be_visible()
 
 
 #  TEST DE PETS
@@ -292,7 +348,7 @@ class PetCreateWeightgreaterThanZero(PlaywrightTestCase):
         self.page.get_by_label("Nombre").fill("Roma")
         self.page.select_option("#breed", label="Dogo Argentino")  # Usa select_option para seleccionar la raza
         self.page.get_by_label("Fecha de Cumpleaños").fill("2022-11-30")
-        self.page.get_by_label("Peso").fill("-200")
+        self.page.get_by_label("Peso").fill("-200.000")
         
         self.page.get_by_role("button", name="Guardar").click()
 
@@ -310,7 +366,7 @@ class PetCreateValidateTestCase(PlaywrightTestCase):
         self.page.get_by_label("Nombre").fill("Firulais")
         self.page.select_option("#breed", label="Labrador")  # Usa select_option para seleccionar la raza
         self.page.get_by_label("Fecha de Cumpleaños").fill("2022-01-01")
-        self.page.get_by_label("Peso").fill("130")
+        self.page.get_by_label("Peso").fill("130.065")
         
 
         self.page.get_by_role("button", name="Guardar").click()
@@ -318,7 +374,7 @@ class PetCreateValidateTestCase(PlaywrightTestCase):
         expect(self.page.get_by_text("Firulais")).to_be_visible()
         expect(self.page.get_by_text("Labrador")).to_be_visible()
         expect(self.page.get_by_text("Jan. 1, 2022")).to_be_visible()
-        expect(self.page.get_by_text("130")).to_be_visible()
+        expect(self.page.get_by_text("130.065")).to_be_visible()
 
 
 
@@ -338,7 +394,7 @@ class PetCreateValidateTestCase(PlaywrightTestCase):
         self.page.get_by_label("Nombre").fill("Firulais")
         self.page.select_option("#breed", label="Labrador")  # Usa select_option para seleccionar la raza
         self.page.get_by_label("Fecha de Cumpleaños").fill("2026-01-01")
-        self.page.get_by_label("Peso").fill("130")
+        self.page.get_by_label("Peso").fill("130.000")
 
         self.page.get_by_role("button", name="Guardar").click()
 
@@ -353,7 +409,7 @@ class PetCreateValidateTestCase(PlaywrightTestCase):
             name="Firulais",
             breed="Labrador",
             birthday="2022-01-01",
-            weight="150",
+            weight= Decimal("150.752"),
         )
 
         path = reverse("pets_edit", kwargs={"id": pet.id})
@@ -362,7 +418,7 @@ class PetCreateValidateTestCase(PlaywrightTestCase):
         self.page.get_by_label("Nombre").fill("Pepito")
         self.page.select_option("#breed", label="Beagle")  # Usa select_option para seleccionar la raza
         self.page.get_by_label("Fecha de Cumpleaños").fill("2002-10-10")
-        self.page.get_by_label("Peso").fill("150")
+        self.page.get_by_label("Peso").fill("150.752")
 
         self.page.get_by_role("button", name="Guardar").click()
 
@@ -373,7 +429,7 @@ class PetCreateValidateTestCase(PlaywrightTestCase):
         expect(self.page.get_by_text("Pepito")).to_be_visible()
         expect(self.page.get_by_text("Beagle")).to_be_visible()
         expect(self.page.get_by_text("Oct. 10, 2002")).to_be_visible()
-        expect(self.page.get_by_text("150")).to_be_visible()
+        expect(self.page.get_by_text("150.752")).to_be_visible()
 
         edit_action = self.page.get_by_role("link", name="Editar")
         expect(edit_action).to_have_attribute(

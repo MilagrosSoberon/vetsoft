@@ -1,6 +1,8 @@
 #Importaciones de Python
+
 import re
 from datetime import date
+from decimal import Decimal
 
 #Importaciones de Django
 from django.db import models
@@ -13,6 +15,7 @@ def validate_client(data):
     name = data.get("name", "")
     phone = data.get("phone", "")
     email = data.get("email", "")
+    pattern_phone_prefix = r'^54'
     pattern_phone = r'^54[\d\s\-\(\)]+$'
     pattern_email = r'^[a-zA-Z0-9_.+-]+@vetsoft.com$'
     pattern_name = r'^[a-zA-Z\s]+$' #solo letras y espacios
@@ -21,10 +24,15 @@ def validate_client(data):
         errors["name"] = "Por favor ingrese un nombre"
     elif not re.match(pattern_name, name):
         errors["name"] = "El nombre solo puede contener letras y espacios"
+    elif len(name) < 3:
+        errors["name"] = "El nombre debe tener al menos 3 caracteres"
     if phone == "":
+        
         errors["phone"] = "Por favor ingrese un teléfono"
+    elif not re.match(pattern_phone_prefix, phone):
+        errors["phone"] = "El número de teléfono debe comenzar con el prefijo 54 para Argentina"
     elif not re.match(pattern_phone, phone):
-        errors["phone"] = "El número de teléfono debe comenzar con el prefijo 54 para Argentina."
+        errors["phone"] = "El número de teléfono debe comenzar con el prefijo 54 para Argentina y solo puede contener números"
     if email == "":
         errors["email"] = "Por favor ingrese un email"
     elif email.count("@") == 0:
@@ -74,13 +82,21 @@ class Client(models.Model):
 
     def update_client(self, client_data):
         """"update_client: Método para actualizar un cliente en la base de datos"""
+        errors = validate_client(client_data)
+
+        if len(errors.keys()) > 0:
+            return False, errors
+
         self.name = client_data.get("name", "") or self.name
-        self.email = client_data.get("email", "") or self.email
         self.phone = client_data.get("phone", "") or self.phone
-        self.address = client_data.get("address", "") or self.address
+        self.email = client_data.get("email", "") or self.email
+        # Actualizar la dirección, permitiendo que se establezca a None si no se proporciona
+        if "address" in client_data:
+            self.address = client_data["address"]
 
         self.save()
 
+        return True, None
  ##---------medicine----------   
 
 
@@ -143,12 +159,18 @@ class Medicine(models.Model):
         return True, None
     def update_medicine(self, medicine_data):
         """def update_medicine: Método para actualizar un medicamento en la base de datos"""
+        errors = validate_medicine(medicine_data)
+
+        if len(errors.keys()) > 0:
+            return False, errors
+        
         self.name = medicine_data.get("name", "") or self.name
         self.description = medicine_data.get("description", "") or self.description
         self.dose = medicine_data.get("dose", "") or self.dose
 
         self.save()
     
+        return True, None
 
  ##---------pets----------   
 
@@ -182,9 +204,9 @@ def validate_pet(data):
         errors["weight"] = "Por favor ingrese un peso"
     else:
         try:
-                decimal_weight = float(weight)
-                if decimal_weight <= 0:
-                    errors["weight"] = "El peso debe ser un número mayor a cero"
+            decimal_weight = Decimal(weight)
+            if decimal_weight <= 0:
+                errors["weight"] = "El peso debe ser un número mayor a cero"
         except ValueError:
             errors["weight"] = "El peso debe ser un número válido"
 
@@ -257,11 +279,20 @@ class Pet(models.Model):
     
     def update_pet(self, pet_data):
         """def update_pet: Método para actualizar una mascota en la base de datos"""
+        # Validar los datos
+        errors = validate_pet(pet_data)
+        
+        if len(errors.keys()) > 0:
+            return False, errors
+        
+        # Actualizar los datos de la mascota
         self.name = pet_data.get("name", "") or self.name
         self.breed = pet_data.get("breed", "") or self.breed
         self.birthday = pet_data.get("birthday", "") or self.birthday
         self.weight = pet_data.get("weight", "") or self.weight
         self.save()
+
+        return True, None
 
 
 
@@ -329,11 +360,17 @@ class Product(models.Model):
     
     def update_product(self, product_data):
         """def update_product: Método para actualizar un producto en la base de datos"""
+        errors = validate_product(product_data)
+
+        if len(errors.keys()) > 0:
+            return False, errors
+        
         self.name = product_data.get("name", "") or self.name
         self.type = product_data.get("type", "") or self.type
         self.price = product_data.get("price", "") or self.price
-
         self.save()
+
+        return True, None
         
 ##---------providers----------   
 
@@ -394,15 +431,17 @@ class Provider(models.Model):
 
     def update_provider(self, provider_data):
         """update_provider: Método para actualizar un proveedor en la base de datos"""
+        errors = validate_provider(provider_data)
+
+        if len(errors.keys()) > 0:
+            return False, errors
+
         self.name = provider_data.get("name", "") or self.name
         self.email = provider_data.get("email", "") or self.email
-        new_address = provider_data.get("address", "")
-        
-        if new_address == "":
-            raise ValueError("Por favor ingrese una dirección")
-        
-        self.address = new_address
+        self.address = provider_data.get("address", "") or self.address
+
         self.save()
+        return True, None
 
 
  ##---------vets----------   
@@ -425,9 +464,9 @@ def validate_vet(data):
     elif email.count("@") == 0:
         errors["email"] = "Por favor ingrese un email valido"
     if phone == "":
-        errors["phone"] = "Por favor ingrese un teléfono"        
+        errors["phone"] = "Por favor ingrese un teléfono"       
     elif not re.match(pattern_phone, phone):
-        errors["phone"] = "El número de teléfono debe comenzar con el prefijo 54 para Argentina."
+        errors["phone"] = "El número de teléfono debe comenzar con el prefijo 54 para Argentina"
 
 
     return errors
@@ -468,11 +507,18 @@ class Vet(models.Model):
 
     def update_vet(self, vet_data):
         """def update_vet: Método para actualizar un veterinario en la base"""
+        errors = validate_vet(vet_data)
+
+        if len(errors.keys()) > 0:
+            return False, errors
+
         self.name = vet_data.get("name", "") or self.name
         self.email = vet_data.get("email", "") or self.email
         self.phone = vet_data.get("phone", "") or self.phone
 
         self.save()
+
+        return True, None
 
 
 

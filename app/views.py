@@ -22,7 +22,7 @@ def clients_form(request, id=None):
             saved, errors = Client.save_client(request.POST)
         else:
             client = get_object_or_404(Client, pk=client_id)
-            client.update_client(request.POST)
+            saved, errors = client.update_client(request.POST)
 
         if saved:
             return redirect(reverse("clients_repo"))
@@ -61,7 +61,7 @@ def medicines_form(request, id=None):
             saved, errors = Medicine.save_medicine(request.POST)
         else:
             medicine = get_object_or_404(Medicine, pk=medicine_id)
-            medicine.update_medicine(request.POST)
+            saved, errors = medicine.update_medicine(request.POST)
         if saved:
             return redirect(reverse("medicines_repo"))
 
@@ -201,13 +201,14 @@ def pets_form(request, id=None):
                     pet.save()
         else:
             pet = get_object_or_404(Pet, pk=pet_id)
-            pet.update_pet(request.POST)
+            saved, errors = pet.update_pet(request.POST)
+            if saved:
             # Obtener el ID del cliente seleccionado del formulario
-            client_id = request.POST.get("client", "")
+                client_id = request.POST.get("client", "")
             # Asociar el cliente seleccionado con el animal actualizado
-            if client_id:
-                pet.client_id = client_id
-                pet.save()
+                if client_id:
+                    pet.client_id = client_id
+                    pet.save()
 
         if saved:
             return redirect(reverse("pets_repo"))
@@ -220,7 +221,7 @@ def pets_form(request, id=None):
     if id is not None:
         pet = get_object_or_404(Pet, pk=id)
 
-    return render(request, "pets/form.html", {"pet": pet, "clients": clients, "Breed": Breed})
+    return render(request, "pets/form.html", {"pet": pet, "clients": clients, "Breed": Breed,})
 
 
 def pets_form_history(request, id):
@@ -304,13 +305,14 @@ def products_form(request, id=None):
                 product.save()
         else:
             product = get_object_or_404(Product, pk=product_id)
-            product.update_product(request.POST)
-            # Obtener el ID del proveedor seleccionado del formulario
-            provider_id = request.POST.get("provider", "")
+            saved, errors = product.update_product(request.POST)
+            if saved:
+                # Obtener el ID del proveedor seleccionado del formulario
+                provider_id = request.POST.get("provider", "")
             # Asociar el proveedor seleccionado con el producto actualizado
-            if provider_id:
-                product.provider_id = provider_id
-                product.save()
+                if provider_id:
+                    product.provider_id = provider_id
+                    product.save()
         
         if saved:
             return redirect(reverse("products_repo"))
@@ -348,11 +350,7 @@ def providers_form(request, id=None):
             saved, errors = Provider.save_provider(request.POST)
         else:
             provider = get_object_or_404(Provider, pk=provider_id)
-            try:
-                provider.update_provider(request.POST)
-            except ValueError as ve:
-                errors["address"] = str(ve)
-                saved = False
+            saved, errors = provider.update_provider(request.POST)
 
         if saved:
             return redirect(reverse("providers_repo"))
@@ -391,7 +389,7 @@ def vets_form(request, id=None):
             saved, errors = Vet.save_vet(request.POST)
         else:
             vet = get_object_or_404(Vet, pk=vet_id)
-            vet.update_vet(request.POST)
+            saved, errors = vet.update_vet(request.POST)
         if saved:
             return redirect(reverse("vets_repo"))
         

@@ -4,7 +4,11 @@
 <div class="container">
     <div class="row">
         <div class="col-lg-6 offset-lg-3">
+            {% if client %}
+            <h1>Editar Cliente</h1>
+            {% else %}
             <h1>Nuevo Cliente</h1>
+            {% endif %}
         </div>
     </div>
 

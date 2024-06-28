@@ -498,11 +498,18 @@ class Vet(models.Model):
 
     def update_vet(self, vet_data):
         """def update_vet: Método para actualizar un veterinario en la base"""
+        errors = validate_vet(vet_data)
+
+        if len(errors.keys()) > 0:
+            return False, errors
+
         self.name = vet_data.get("name", "") or self.name
         self.email = vet_data.get("email", "") or self.email
         self.phone = vet_data.get("phone", "") or self.phone
 
         self.save()
+
+        return True, None
 
 
 

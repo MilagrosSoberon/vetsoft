@@ -24,7 +24,10 @@ def validate_client(data):
         errors["name"] = "Por favor ingrese un nombre"
     elif not re.match(pattern_name, name):
         errors["name"] = "El nombre solo puede contener letras y espacios"
+    elif len(name) < 3:
+        errors["name"] = "El nombre debe tener al menos 3 caracteres"
     if phone == "":
+        
         errors["phone"] = "Por favor ingrese un teléfono"
     elif not re.match(pattern_phone_prefix, phone):
         errors["phone"] = "El número de teléfono debe comenzar con el prefijo 54 para Argentina"

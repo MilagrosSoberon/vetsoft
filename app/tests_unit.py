@@ -47,7 +47,6 @@ class ClientModelTest(TestCase):
 
         client_updated = Client.objects.get(pk=1)
 
-        print(client_updated.phone)
         self.assertEqual(client_updated.phone, "54221555233")
 
     def test_update_client_with_error(self):

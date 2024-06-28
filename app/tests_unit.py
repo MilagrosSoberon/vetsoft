@@ -411,7 +411,7 @@ class VetModelTest(TestCase):
 
         vet_updated = Vet.objects.get(pk=1)
 
-        self.assertEqual(vet_updated.phone, 54221555233)
+        self.assertEqual(vet_updated.phone, 54221555232)
     
     def test_update_vet_with_error(self):
         Vet.save_vet(

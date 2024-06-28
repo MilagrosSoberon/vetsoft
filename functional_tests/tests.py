@@ -211,6 +211,33 @@ class ClientCreateEditTestCase(PlaywrightTestCase):
             self.page.get_by_text("Por favor ingrese un email válido"),
         ).to_be_visible()
 
+    def test_should_view_errors_if_name_less_than_three_words(self):
+        self.page.goto(f"{self.live_server_url}{reverse('clients_form')}")
+
+        expect(self.page.get_by_role("form")).to_be_visible()
+
+        self.page.get_by_role("button", name="Guardar").click()
+
+        expect(self.page.get_by_text("Por favor ingrese un nombre")).to_be_visible()
+        expect(self.page.get_by_text("Por favor ingrese un teléfono")).to_be_visible()
+        expect(self.page.get_by_text("Por favor ingrese un email")).to_be_visible()
+
+        self.page.get_by_label("Nombre").fill("Ja")
+        self.page.get_by_label("Teléfono").fill("54221555232")
+        self.page.get_by_label("Email").fill("brujita75")
+        self.page.get_by_label("Dirección").fill("13 y 44")
+
+        self.page.get_by_role("button", name="Guardar").click()
+
+        expect(self.page.get_by_text("El nombre debe tener al menos 3 caracteres")).to_be_visible()
+        expect(
+            self.page.get_by_text("Por favor ingrese un teléfono"),
+        ).not_to_be_visible()
+
+        expect(
+            self.page.get_by_text("Por favor ingrese un email válido"),
+        ).to_be_visible()
+
     def test_email_must_end_with_vetsoft_com(self):
         
         self.page.goto(f"{self.live_server_url}{reverse('clients_form')}")

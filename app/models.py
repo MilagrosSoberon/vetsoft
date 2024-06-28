@@ -156,12 +156,18 @@ class Medicine(models.Model):
         return True, None
     def update_medicine(self, medicine_data):
         """def update_medicine: Método para actualizar un medicamento en la base de datos"""
+        errors = validate_medicine(medicine_data)
+
+        if len(errors.keys()) > 0:
+            return False, errors
+        
         self.name = medicine_data.get("name", "") or self.name
         self.description = medicine_data.get("description", "") or self.description
         self.dose = medicine_data.get("dose", "") or self.dose
 
         self.save()
     
+        return True, None
 
  ##---------pets----------   
 
